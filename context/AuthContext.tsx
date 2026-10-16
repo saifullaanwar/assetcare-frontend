@@ -52,6 +52,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const login = (newToken: string, userData: User) => {
     localStorage.setItem('token', newToken);
+    document.cookie = `token=${newToken}; path=/; max-age=86400; SameSite=Lax`;
     setToken(newToken);
     setUser(userData);
     router.push('/dashboard');
@@ -64,6 +65,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.error('Logout error:', error);
     } finally {
       localStorage.removeItem('token');
+      document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
       setToken(null);
       setUser(null);
       router.push('/login');
