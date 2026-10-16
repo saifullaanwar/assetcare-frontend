@@ -19,7 +19,9 @@ export default function LoginPage() {
 
     try {
       const response = await api.post('/login', { email, password });
-      const { token, user } = response.data.data || response.data;
+      const data = response.data.data || response.data;
+      const token = data.access_token;
+      const user = data.user;
       login(token, user);
     } catch (err: any) {
       setError(

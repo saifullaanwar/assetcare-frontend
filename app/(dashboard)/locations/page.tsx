@@ -7,7 +7,9 @@ import { Plus, Trash2, Edit2, MapPin } from 'lucide-react';
 interface Location {
   id: number;
   name: string;
-  address: string | null;
+  code: string;
+  building: string | null;
+  description: string | null;
 }
 
 export default function LocationsPage() {
@@ -16,7 +18,9 @@ export default function LocationsPage() {
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [name, setName] = useState('');
-  const [address, setAddress] = useState('');
+  const [code, setCode] = useState('');
+  const [building, setBuilding] = useState('');
+  const [description, setDescription] = useState('');
 
   const fetchLocations = async () => {
     try {
@@ -37,11 +41,15 @@ export default function LocationsPage() {
     if (location) {
       setEditingId(location.id);
       setName(location.name);
-      setAddress(location.address || '');
+      setCode(location.code);
+      setBuilding(location.building || '');
+      setDescription(location.description || '');
     } else {
       setEditingId(null);
       setName('');
-      setAddress('');
+      setCode('');
+      setBuilding('');
+      setDescription('');
     }
     setShowModal(true);
   };
@@ -50,9 +58,9 @@ export default function LocationsPage() {
     e.preventDefault();
     try {
       if (editingId) {
-        await api.put(`/locations/${editingId}`, { name, address });
+        await api.put(`/locations/${editingId}`, { name, code, building, description });
       } else {
-        await api.post('/locations', { name, address });
+        await api.post('/locations', { name, code, building, description });
       }
       setShowModal(false);
       fetchLocations();
@@ -92,14 +100,16 @@ export default function LocationsPage() {
           <thead className="bg-gray-50 text-gray-700 uppercase text-xs">
             <tr>
               <th className="py-3 px-4">Nama Lokasi / Ruangan</th>
-              <th className="py-3 px-4">Alamat / Detail</th>
+              <th className="py-3 px-4">Kode</th>
+              <th className="py-3 px-4">Gedung</th>
+              <th className="py-3 px-4">Keterangan</th>
               <th className="py-3 px-4 text-right">Aksi</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {loading ? (
               <tr>
-                <td colSpan={3} className="py-4 text-center">Memuat data...</td>
+                <td colSpan={5} className="py-4 text-center">Memuat data...</td>
               </tr>
             ) : locations.length > 0 ? (
               locations.map((loc) => (
@@ -108,7 +118,13 @@ export default function LocationsPage() {
                     <MapPin className="w-4 h-4 text-red-500" />
                     {loc.name}
                   </td>
-                  <td className="py-3 px-4">{loc.address || '-'}</td>
+                  <td className="py-3 px-4">
+                    <span className="px-2 py-0.5 bg-red-50 text-red-700 text-xs rounded font-mono">
+                      {loc.code}
+                    </span>
+                  </td>
+                  <td className="py-3 px-4">{loc.building || '-'}</td>
+                  <td className="py-3 px-4">{loc.description || '-'}</td>
                   <td className="py-3 px-4 text-right space-x-2">
                     <button
                       onClick={() => handleOpenModal(loc)}
@@ -127,7 +143,7 @@ export default function LocationsPage() {
               ))
             ) : (
               <tr>
-                <td colSpan={3} className="py-4 text-center text-gray-400">Belum ada data lokasi.</td>
+                <td colSpan={5} className="py-4 text-center text-gray-400">Belum ada data lokasi.</td>
               </tr>
             )}
           </tbody>
@@ -153,13 +169,35 @@ export default function LocationsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Alamat / Keterangan</label>
-                <textarea
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
+                <label className="block text-sm font-medium text-gray-700">Kode Lokasi</label>
+                <input
+                  type="text"
+                  required
+                  value={code}
+                  onChange={(e) => setCode(e.target.value.toUpperCase())}
+                  className="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 font-mono"
+                  placeholder="KP-L1 / SRV-1"
+                />
+                <p className="text-xs text-gray-400 mt-1">Kode unik singkat. Contoh: KP-L2</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Nama Gedung</label>
+                <input
+                  type="text"
+                  value={building}
+                  onChange={(e) => setBuilding(e.target.value)}
                   className="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                  rows={3}
-                  placeholder="Gedung A, Lantai 2..."
+                  placeholder="Gedung Utama / Gedung B"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Keterangan</label>
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                  rows={2}
+                  placeholder="Deskripsi tambahan lokasi..."
                 />
               </div>
               <div className="flex justify-end gap-2 pt-2">

@@ -44,28 +44,34 @@ export default function AssetsPage() {
   const [purchaseDate, setPurchaseDate] = useState('');
   const [purchaseCost, setPurchaseCost] = useState('');
 
-  const fetchData = async () => {
+  const fetchAssets = async () => {
     try {
-      const [assetsRes, catRes, locRes] = await Promise.all([
-        api.get('/assets'),
-        api.get('/categories'),
-        api.get('/locations'),
-      ]);
+      const assetsRes = await api.get('/assets');
       setAssets(assetsRes.data.data || assetsRes.data);
-      setCategories(catRes.data.data || catRes.data);
-      setLocations(locRes.data.data || locRes.data);
     } catch (err) {
-      console.error('Failed to fetch data', err);
+      console.error('Failed to fetch assets', err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchData();
+    fetchAssets();
   }, []);
 
-  const handleOpenModal = (asset?: Asset) => {
+  const handleOpenModal = async (asset?: Asset) => {
+    // Fetch categories & locations fresh setiap kali modal dibuka
+    try {
+      const [catRes, locRes] = await Promise.all([
+        api.get('/categories'),
+        api.get('/locations'),
+      ]);
+      setCategories(catRes.data.data || catRes.data);
+      setLocations(locRes.data.data || locRes.data);
+    } catch (err) {
+      console.error('Gagal memuat kategori/lokasi', err);
+    }
+
     if (asset) {
       setEditingId(asset.id);
       setName(asset.name);
@@ -79,8 +85,8 @@ export default function AssetsPage() {
       setEditingId(null);
       setName('');
       setSerialNumber('');
-      setCategoryId(categories[0]?.id || '');
-      setLocationId(locations[0]?.id || '');
+      setCategoryId('');
+      setLocationId('');
       setStatus('available');
       setPurchaseDate('');
       setPurchaseCost('');
@@ -107,7 +113,7 @@ export default function AssetsPage() {
         await api.post('/assets', payload);
       }
       setShowModal(false);
-      fetchData();
+      fetchAssets();
     } catch (err: any) {
       alert(err.response?.data?.message || 'Gagal menyimpan perangkat');
     }
@@ -117,7 +123,7 @@ export default function AssetsPage() {
     if (!confirm('Yakin ingin menghapus perangkat ini?')) return;
     try {
       await api.delete(`/assets/${id}`);
-      fetchData();
+      fetchAssets();
     } catch (err: any) {
       alert(err.response?.data?.message || 'Gagal menghapus perangkat');
     }
