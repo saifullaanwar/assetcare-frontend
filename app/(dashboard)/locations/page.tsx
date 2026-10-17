@@ -83,7 +83,7 @@ export default function LocationsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Master Lokasi Aset</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Lokasi Aset</h1>
           <p className="text-sm text-gray-600">Kelola penempatan fisik dan ruangan aset</p>
         </div>
         <button

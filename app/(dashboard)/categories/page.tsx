@@ -79,7 +79,7 @@ export default function CategoriesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Master Kategori Aset</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Kategori Aset</h1>
           <p className="text-sm text-gray-600">Kelola kategori pengelompokan perangkat</p>
         </div>
         <button
