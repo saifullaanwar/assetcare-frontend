@@ -19,6 +19,8 @@ interface Maintenance {
   cost: number | null;
   status: 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
   performed_by: string | null;
+  service_location: string | null;
+  parts_replaced: string | null;
   notes: string | null;
   asset?: Asset;
 }
@@ -84,6 +86,8 @@ export default function MaintenancesPage() {
   const [cost, setCost] = useState('');
   const [status, setStatus] = useState<'scheduled' | 'in_progress' | 'completed' | 'cancelled'>('completed');
   const [performedBy, setPerformedBy] = useState('');
+  const [serviceLocation, setServiceLocation] = useState('');
+  const [partsReplaced, setPartsReplaced] = useState('');
   const [notes, setNotes] = useState('');
 
   const fetchMaintenances = async () => {
@@ -115,6 +119,8 @@ export default function MaintenancesPage() {
       setCost(item.cost ? String(item.cost) : '');
       setStatus(item.status);
       setPerformedBy(item.performed_by || '');
+      setServiceLocation(item.service_location || '');
+      setPartsReplaced(item.parts_replaced || '');
       setNotes(item.notes || '');
     } else {
       setEditingId(null);
@@ -125,6 +131,8 @@ export default function MaintenancesPage() {
       setCost('');
       setStatus('completed');
       setPerformedBy('');
+      setServiceLocation('');
+      setPartsReplaced('');
       setNotes('');
     }
     setShowModal(true);
@@ -144,6 +152,8 @@ export default function MaintenancesPage() {
       cost: cost ? Number(cost) : null,
       status,
       performed_by: performedBy || null,
+      service_location: serviceLocation || null,
+      parts_replaced: partsReplaced || null,
       notes: notes || null,
     };
 
@@ -197,6 +207,7 @@ export default function MaintenancesPage() {
                 <th className="py-3 px-4">Jadwal Berikutnya</th>
                 <th className="py-3 px-4">Status</th>
                 <th className="py-3 px-4">Teknisi</th>
+                <th className="py-3 px-4">Lokasi Servis</th>
                 <th className="py-3 px-4">Biaya</th>
                 <th className="py-3 px-4 text-right">Aksi</th>
               </tr>
@@ -204,7 +215,7 @@ export default function MaintenancesPage() {
             <tbody className="divide-y divide-gray-100">
               {loading ? (
                 <tr>
-                  <td colSpan={8} className="py-4 text-center">Memuat data...</td>
+                  <td colSpan={9} className="py-4 text-center">Memuat data...</td>
                 </tr>
               ) : maintenances.length > 0 ? (
                 maintenances.map((item) => (
@@ -223,6 +234,7 @@ export default function MaintenancesPage() {
                     <td className="py-3 px-4">{getServiceBadge(item.next_service_date)}</td>
                     <td className="py-3 px-4">{getStatusBadge(item.status)}</td>
                     <td className="py-3 px-4 text-gray-600">{item.performed_by || '-'}</td>
+                    <td className="py-3 px-4 text-gray-600">{item.service_location || '-'}</td>
                     <td className="py-3 px-4 font-semibold text-gray-900">
                       {item.cost ? `Rp ${Number(item.cost).toLocaleString('id-ID')}` : '-'}
                     </td>
@@ -244,7 +256,7 @@ export default function MaintenancesPage() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={8} className="py-4 text-center text-gray-400">
+                  <td colSpan={9} className="py-4 text-center text-gray-400">
                     Belum ada riwayat perawatan.
                   </td>
                 </tr>
@@ -346,6 +358,28 @@ export default function MaintenancesPage() {
                   onChange={(e) => setPerformedBy(e.target.value)}
                   className="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                   placeholder="Nama teknisi atau vendor"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Lokasi Servis Dilakukan</label>
+                <input
+                  type="text"
+                  value={serviceLocation}
+                  onChange={(e) => setServiceLocation(e.target.value)}
+                  className="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                  placeholder="Workshop vendor / Ruang IT / On-site"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Sparepart / Komponen yang Diganti</label>
+                <textarea
+                  value={partsReplaced}
+                  onChange={(e) => setPartsReplaced(e.target.value)}
+                  className="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                  rows={2}
+                  placeholder="Thermal paste, kipas CPU, baterai, dll..."
                 />
               </div>
 
